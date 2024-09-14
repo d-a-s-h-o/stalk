@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  talk:
+    container_name: talk-server
+    restart: unless-stopped
+    build: .
+    volumes:
+      - .:/usr/src/app
+    links:
+      - php
+    networks:
+      - asgarded
+
+networks:
+  asgarded:
+    name: asgard
+    external: true
