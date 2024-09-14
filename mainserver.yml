@@ -1,0 +1,13 @@
+# This is the config file for the main server.
+# It is not intended to be used as a default by self-hosted servers but can serve as a reference.
+
+port: 2222
+alt_port: 22
+profile_port: 5555
+scrollback: 25 # the number of messages from #main to keep in memory to give context when a user joins
+data_dir: talk-data
+key_file: talk-sshkey
+integration_config: talk-creds.yml # the file itself is not committed into the repo for obvious reasons
+censor: true # the internet is harsh...
+admins:
+  daba388eaea39428b7f6a287bade7a59ae428a53e210689c7642961ab68b41c2: 'Admin: dasho'
