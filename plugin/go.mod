@@ -3,7 +3,7 @@ module github.com/d-a-s-h-o/talk/plugin
 go 1.20
 
 require (
-	google.golang.org/grpc v1.56.1
+	google.golang.org/grpc v1.56.3
 	google.golang.org/protobuf v1.31.0
 )
 
