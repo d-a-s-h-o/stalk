@@ -35,7 +35,7 @@ var (
 	AntispamMessages           = make(map[string]int)
 	TORIPs                     = make(map[string]bool)
 
-	Devbot = Green.Paint("devbot")
+	Devbot = Green.Paint("sokka[bot]")
 )
 
 const (
@@ -83,6 +83,8 @@ type User struct {
 	joinTime      time.Time
 	lastInteract  time.Time
 	Timezone      tz
+
+	Hidden bool
 }
 
 type tz struct {
@@ -140,7 +142,7 @@ func main() {
 		})
 		for _, r := range Rooms {
 			r.broadcast(Devbot, "Server going down! This is probably because it is being updated. Try joining back immediately.  \n"+
-				"If you still can't join, try joining back in 2 minutes. If you _still_ can't join, make an issue at github.com/quackduck/devzat/issues")
+				"If you still can't join, try joining back in 2 minutes. If you _still_ can't join, make an issue at github.com/d-a-s-h-o/talk/issues")
 			for _, u := range r.users {
 				u.savePrefs() //nolint:errcheck
 			}
@@ -174,9 +176,9 @@ func main() {
 	})
 
 	if Config.Private {
-		Log.Printf("Starting a private Devzat server on port %d and profiling on port %d\n Edit your config to change who's allowed entry.", Config.Port, Config.ProfilePort)
+		Log.Printf("Starting a private Talk server on port %d and profiling on port %d\n Edit your config to change who's allowed entry.", Config.Port, Config.ProfilePort)
 	} else {
-		Log.Printf("Starting a Devzat server on port %d and profiling on port %d\n", Config.Port, Config.ProfilePort)
+		Log.Printf("Starting a Talk server on port %d and profiling on port %d\n", Config.Port, Config.ProfilePort)
 	}
 	go getMsgsFromSlack()
 	checkKey(Config.KeyFile)
@@ -366,7 +368,7 @@ func newUser(s ssh.Session) *User {
 	pty, winChan, isPty := s.Pty()
 	w := pty.Window.Width
 	if !isPty { // only support pty joins
-		term.Write([]byte("Devzat does not allow non-pty joins. What are you trying to pull here?"))
+		term.Write([]byte("Talk does not allow non-pty joins. What are you trying to pull here?"))
 		return nil
 	}
 	if w <= 0 { // strange terminals
@@ -398,7 +400,8 @@ func newUser(s ssh.Session) *User {
 		lastTimestamp: time.Now(),
 		lastInteract:  time.Now(),
 		joinTime:      time.Now(),
-		room:          MainRoom}
+		room:          MainRoom,
+		Hidden:        false}
 
 	go func() {
 		for win := range winChan {
@@ -671,7 +674,7 @@ func (u *User) pickUsernameQuietly(possibleName string) error {
 	possibleName = cleanName(possibleName)
 	var err error
 	for {
-		if possibleName == "" || strings.HasPrefix(possibleName, "#") || possibleName == "devbot" || strings.HasPrefix(possibleName, "@") {
+		if possibleName == "" || strings.HasPrefix(possibleName, "#") || possibleName == "sokka[bot]" || possibleName == "syntax" || strings.HasPrefix(possibleName, "@") {
 			u.writeln("", "Your username is invalid. Pick a different one:")
 		} else if otherUser, dup := userDuplicate(u.room, possibleName); dup {
 			if otherUser == u {
@@ -800,7 +803,7 @@ func (u *User) formatPrompt() {
 			case 't', 'T':
 				u.formattedPrompt += fmtTime(u, time.Now())
 			case 'h', 'H':
-				u.formattedPrompt += copyColor("devzat", u.Name)
+				u.formattedPrompt += copyColor("talk", u.Name)
 			case 'S':
 				u.formattedPrompt += " "
 			case '$':

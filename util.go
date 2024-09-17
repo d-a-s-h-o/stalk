@@ -289,7 +289,7 @@ func remove(s []*User, a *User) []*User {
 }
 
 func devbotChat(room *Room, line string) {
-	if strings.Contains(line, "devbot") {
+	if strings.Contains(line, "sokka") {
 		if strings.HasPrefix(line, "kick ") || strings.HasPrefix(line, "ban ") { // devbot already replied in the command function
 			return
 		}
@@ -325,7 +325,7 @@ func devbotChat(room *Room, line string) {
 			devbotRespond(room, []string{"NO YOU", "You shut up", "what an idiot, bullying a bot"}, 90)
 			return
 		}
-		devbotRespond(room, []string{"Hi I'm devbot", "Hey", "HALLO :rocket:", "Yes?", "Devbot to the rescue!", ":wave:"}, 90)
+		devbotRespond(room, []string{"Hi I'm Sokka", "Hey", "HALLO :rocket:", "Yes?", "Sokka to the rescue!", ":wave:"}, 90)
 	}
 	if line == "./help" || line == "/help" || strings.Contains(line, "help me") {
 		devbotRespond(room, []string{"Run help to get help!",
@@ -480,4 +480,132 @@ func genKey() (ed25519.PrivateKey, ssh.PublicKey, error) {
 		return nil, nil, err
 	}
 	return priv, sshPubKey, nil
+}
+
+func cowEncodeDecode(text string) string {
+	// if message contains anything outside of moo, then encode it to a sequence of moos based on base64 first and then split each block into 2 moos
+	encryptkey := &map[string]string{
+		"0":  "oo" + "o ",
+		"1":  "oo" + "m ",
+		"2":  "oo" + "oo ",
+		"3":  "oo" + "om ",
+		"4":  "oo" + "mo ",
+		"5":  "oo" + "mm ",
+		"6":  "oo" + "ooo ",
+		"7":  "oo" + "oom ",
+		"8":  "oo" + "omo ",
+		"9":  "oo" + "omm ",
+		"A":  "om" + "o ",
+		"B":  "om" + "m ",
+		"C":  "om" + "oo ",
+		"D":  "om" + "om ",
+		"E":  "om" + "mo ",
+		"F":  "om" + "mm ",
+		"G":  "om" + "ooo ",
+		"H":  "om" + "oom ",
+		"I":  "om" + "omo ",
+		"J":  "om" + "omm ",
+		"K":  "om" + "moo ",
+		"L":  "om" + "mom ",
+		"M":  "om" + "mmo ",
+		"N":  "om" + "mmm ",
+		"O":  "om" + "oooo ",
+		"P":  "om" + "ooom ",
+		"Q":  "om" + "oomo ",
+		"R":  "om" + "oomm ",
+		"S":  "om" + "omoo ",
+		"T":  "om" + "omom ",
+		"U":  "om" + "ommo ",
+		"V":  "om" + "ommm ",
+		"W":  "om" + "mooo ",
+		"X":  "om" + "moom ",
+		"Y":  "om" + "momo ",
+		"Z":  "om" + "momm ",
+		"a":  "mo" + "o ",
+		"b":  "mo" + "m ",
+		"c":  "mo" + "oo ",
+		"d":  "mo" + "om ",
+		"e":  "mo" + "mo ",
+		"f":  "mo" + "mm ",
+		"g":  "mo" + "ooo ",
+		"h":  "mo" + "oom ",
+		"i":  "mo" + "omo ",
+		"j":  "mo" + "omm ",
+		"k":  "mo" + "moo ",
+		"l":  "mo" + "mom ",
+		"m":  "mo" + "mmo ",
+		"n":  "mo" + "mmm ",
+		"o":  "mo" + "oooo ",
+		"p":  "mo" + "ooom ",
+		"q":  "mo" + "oomo ",
+		"r":  "mo" + "oomm ",
+		"s":  "mo" + "omoo ",
+		"t":  "mo" + "omom ",
+		"u":  "mo" + "ommo ",
+		"v":  "mo" + "ommm ",
+		"w":  "mo" + "mooo ",
+		"x":  "mo" + "moom ",
+		"y":  "mo" + "momo ",
+		"z":  "mo" + "momm ",
+		" ":  "mm" + "o ",
+		"!":  "mm" + "m ",
+		"\"": "mm" + "oo ",
+		"#":  "mm" + "om ",
+		"$":  "mm" + "mo ",
+		"%":  "mm" + "mm ",
+		"&":  "mm" + "ooo ",
+		"'":  "mm" + "oom ",
+		"(":  "mm" + "omo ",
+		")":  "mm" + "omm ",
+		"*":  "mm" + "moo ",
+		"+":  "mm" + "mom ",
+		",":  "mm" + "mmo ",
+		"-":  "mm" + "mmm ",
+		".":  "mm" + "oooo ",
+		"/":  "mm" + "ooom ",
+		":":  "mm" + "oomo ",
+		";":  "mm" + "oomm ",
+		"<":  "mm" + "omoo ",
+		"=":  "mm" + "omom ",
+		">":  "mm" + "ommo ",
+		"?":  "mm" + "ommm ",
+		"@":  "mm" + "mooo ",
+		"[":  "mm" + "moom ",
+		"\\": "mm" + "momo ",
+		"]":  "mm" + "momm ",
+		"^":  "mm" + "mmoo ",
+		"_":  "mm" + "mmom ",
+		"`":  "mm" + "mmmo ",
+		"{":  "mm" + "mmmm ",
+		"}":  "mm" + "ooooo ",
+	}
+	// reverse the map for decoding
+	decryptkey := make(map[string]string)
+	for k, v := range *encryptkey {
+		decryptkey[v] = k
+	}
+	// if contains anything other than m and o or a space encode it
+	for _, c := range text {
+		if c != 'm' && c != 'o' && c != ' ' {
+			// println("encoding")
+			encoded := ""
+			for _, c := range text {
+				// println(string(c) + " -> " + (*encryptkey)[string(c)])
+				encoded += string((*encryptkey)[string(c)])
+			}
+			// println("encoded: ", encoded)
+			return encoded
+		}
+	}
+	// println("decoding")
+	// split string into array by " "
+	decoded := ""
+	blocks := strings.Split(text, " ")
+	for _, block := range blocks {
+		// println("block: " + block)
+		// println(block + " --> " + decryptkey[block+" "])
+		decoded += decryptkey[block+" "]
+		// println("decoded: ", decoded)
+	}
+	return decoded
 }

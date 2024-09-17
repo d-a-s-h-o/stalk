@@ -3,7 +3,6 @@ module talk
 go 1.20
 
 require (
-	talk/plugin v0.0.0-00010101000000-000000000000
 	github.com/TwiN/go-away v1.6.11
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/alecthomas/chroma v0.10.0
@@ -24,6 +23,7 @@ require (
 	golang.org/x/image v0.12.0
 	google.golang.org/grpc v1.58.2
 	gopkg.in/yaml.v2 v2.4.0
+	talk/plugin v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -55,6 +55,7 @@ require (
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230920204549-e6e6cdab5c13 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
+	gopkg.in/Knetic/govaluate.v3 v3.0.0 // indirect
 )
 
 replace talk/plugin => ./plugin

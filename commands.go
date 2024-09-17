@@ -5,6 +5,7 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"io/ioutil"
 	"math"
 	"math/rand"
 	"os"
@@ -21,6 +22,7 @@ import (
 	"github.com/jwalton/gchalk"
 	"github.com/quackduck/term"
 	"github.com/shurcooL/tictactoe"
+	"gopkg.in/Knetic/govaluate.v3"
 )
 
 type CMD struct {
@@ -70,6 +72,8 @@ var (
 		{"uname", unameCMD, "", "Show build info"},
 		{"uptime", uptimeCMD, "", "Show server uptime"},
 		{"8ball", eightBallCMD, "`question`", "Always tells the truth."},
+		{"calc", calcCMD, "`expression`", "Calculate a math expression"},
+		{"mkdir", mkdirCMD, "#`room`", "Create a new room without entering it"},
 		{"rmdir", rmdirCMD, "#`room`", "Remove an empty room"},
 	}
 	SecretCMDs = []CMD{
@@ -81,6 +85,17 @@ var (
 		{":q", exitCMD, "", "This is an alias of exit"},          // appease the Vim user
 		{":wq", exitCMD, "", "This is an alias of exit"},         // appease the Vim user, that wants to save
 		{"neofetch", neofetchCMD, "???", "???"},                  //apease the Arch user (mostly)
+		{"fastfetch", neofetchCMD, "???", "???"},                 //apease the Arch user (mostly) alias of neofetch
+		{"/me", meCMD, "`action`", "Do an action"},               // send like person <action>
+		{"motd", motdCMD, "", "Show the message of the day"},
+		{"whoami", whoamiCMD, "", "Show your username"},
+		{"whois", whoisCMD, "`user`", "Show a user's username"},
+		{"who", whoCMD, "", "Show who is online"},
+		{"whoisAdmin", whoisAdminCMD, "", "Show who is an admin"},
+		{"echo", echoCMD, "`message`", "Echo a message"},
+		{"cowsay", cowsayCMD, "`message`", "Encode/decode a message as a cow"},
+		{"hide", hideCMD, "", "Hide your messages"},
+		{"@#people", peopleCMD, "", "See info about all users {admin}"},
 	}
 
 	unameCommit = ""
@@ -552,10 +567,12 @@ func banCMD(line string, u *User) {
 	banner := u.Name
 	banReason := "" // Initial ban reason is an empty string
 
-	if split[0] == "devbot" {
-		u.room.broadcast(Devbot, "Do you really think you can ban me, puny human?")
-		victim = u // mwahahahaha - devbot
-		banner = Devbot
+	if split[0] == "sokka" || split[0] == "sokka[bot]" {
+		// u.room.broadcast(Devbot, "Do you really think you can ban me, puny human?")
+		// victim = u // mwahahahaha - devbot
+		// banner = Devbot
+		u.room.broadcast(Devbot, "Not authorized")
+		return
 	} else if !auth(u) {
 		u.room.broadcast(Devbot, "Not authorized")
 		return
@@ -587,7 +604,7 @@ func banCMD(line string, u *User) {
 func kickCMD(line string, u *User) {
 	victim, ok := findUserByName(u.room, line)
 	if !ok {
-		if line == "devbot" {
+		if line == "sokka" || line == "sokka[bot]" {
 			u.room.broadcast(Devbot, "You will pay for this")
 			u.close(u.Name + Red.Paint(" has been kicked by ") + Devbot)
 		} else {
@@ -650,7 +667,8 @@ func adminsCMD(_ string, u *User) {
 }
 
 func helpCMD(_ string, u *User) {
-	u.room.broadcast("", `Welcome to the TALK dev chat! This chat is over SSH.
+	u.room.broadcast("", `
+Welcome to the TALK dev chat! This chat is over SSH.
 Because there's SSH apps on all platforms, even on mobile, you can join from anywhere.
 
 Run cmds to see a list of commands.
@@ -663,6 +681,13 @@ Interesting features:
 * Timezone support, use tz Continent/City to set your timezone.
 * Built in Tic Tac Toe and Hangman! Run tic or hang <word> to start new games.
 * Emoji replacements! \:rocket\: => :rocket: (like on Slack and Discord)
+
+`)
+}
+
+func motdCMD(_ string, u *User) {
+	u.room.broadcast("", `
+Hey guys, this is still in testing so bear with me :) - Dasho
 `)
 }
 
@@ -671,6 +696,8 @@ func catCMD(line string, u *User) {
 		u.room.broadcast("", "usage: cat [-benstuv] [file ...]")
 	} else if line == "README.md" {
 		helpCMD(line, u)
+	} else if line == "MOTD.md" {
+		motdCMD(line, u)
 	} else {
 		u.room.broadcast("", "cat: "+line+": Permission denied")
 	}
@@ -853,7 +880,7 @@ func lsCMD(rest string, u *User) {
 		usersList += us.Name + Blue.Paint("/ ")
 	}
 	usersList += Devbot + Blue.Paint("/ ")
-	u.room.broadcast("", "README.md "+usersList+roomList)
+	u.room.broadcast("", "README.md MOTD.md "+usersList+roomList)
 }
 
 func commandsCMD(_ string, u *User) {
@@ -885,7 +912,7 @@ func neofetchCMD(_ string, u *User) {
 	memstats := runtime.MemStats{}
 	runtime.ReadMemStats(&memstats)
 	yellow := gchalk.RGB(255, 255, 0)
-	userHost := yellow(os.Getenv("USER")) + "@" + yellow(os.Getenv("HOSTNAME"))
+	userHost := yellow(os.Getenv("USER")) + "@talk"
 	colorSwatch1 := "\u001B[30m\u001B[40m   \u001B[31m\u001B[41m   \u001B[32m\u001B[42m   \u001B[33m\u001B[43m   \u001B[34m\u001B[44m   \u001B[35m\u001B[45m   \u001B[36m\u001B[46m   \u001B[37m\u001B[47m   \u001B[m"
 	colorSwatch2 := "\u001B[38;5;8m\u001B[48;5;8m   \u001B[38;5;9m\u001B[48;5;9m   \u001B[38;5;10m\u001B[48;5;10m   \u001B[38;5;11m\u001B[48;5;11m   \u001B[38;5;12m\u001B[48;5;12m   \u001B[38;5;13m\u001B[48;5;13m   \u001B[38;5;14m\u001B[48;5;14m   \u001B[38;5;15m\u001B[48;5;15m   \u001B[m"
 	properties := []struct {
@@ -916,6 +943,7 @@ func neofetchCMD(_ string, u *User) {
 		}
 		result += "  \n"
 	}
+	result += "\n"
 	u.room.broadcast("", result)
 }
 
@@ -934,7 +962,48 @@ func eightBallCMD(_ string, u *User) {
 	}()
 }
 
+func calcCMD(line string, u *User) {
+	if line == "" {
+		u.room.broadcast(Devbot, "You need to provide a calculation")
+		return
+	}
+	expr, err := govaluate.NewEvaluableExpression(line)
+	if err != nil {
+		u.room.broadcast(Devbot, "Invalid expression")
+		return
+	}
+	result, err := expr.Evaluate(nil)
+	if err != nil {
+		u.room.broadcast(Devbot, "Invalid expression")
+		return
+	}
+	u.room.broadcast(Devbot, fmt.Sprintf("%s = %v", line, result))
+}
+
+func mkdirCMD(rest string, u *User) {
+	if rest == "" {
+		u.room.broadcast("", "mkdir: missing operand")
+		return
+	}
+	if !strings.HasPrefix(rest, "#") {
+		rest = "#" + rest
+	}
+	if len(rest) > MaxRoomNameLen {
+		rest = rest[0:MaxRoomNameLen]
+		u.room.broadcast(Devbot, "Room name lengths are limited, so I'm shortening it to "+rest+".")
+	}
+	if _, ok := Rooms[rest]; ok {
+		u.room.broadcast("", "mkdir: cannot create directory '"+rest+"': File exists")
+		return
+	}
+	Rooms[rest] = &Room{rest, make([]*User, 0, 10), sync.RWMutex{}}
+	u.room.broadcast("", "mkdir: created directory '"+rest+"'")
+}
+
 func rmdirCMD(rest string, u *User) {
+	if !strings.HasPrefix(rest, "#") {
+		rest = "#" + rest
+	}
 	if rest == "#main" {
 		u.room.broadcast("", "rmdir: failed to remove '"+rest+"': Operation not permitted")
 	} else if room, ok := Rooms[rest]; ok {
@@ -946,5 +1015,81 @@ func rmdirCMD(rest string, u *User) {
 		}
 	} else {
 		u.room.broadcast("", "rmdir: failed to remove '"+rest+"': No such room")
+	}
+}
+
+func whoCMD(_ string, u *User) {
+	u.room.broadcast("", printUsersInRoom(u.room))
+}
+
+func whoisAdminCMD(_ string, u *User) {
+	admins := ""
+	for id, info := range Config.Admins {
+		admins += id + " " + info + "  \n"
+	}
+	u.room.broadcast(Devbot, admins)
+}
+
+func whoisCMD(line string, u *User) {
+	if line == "" {
+		u.room.broadcast(Devbot, "Who do you want to know about?")
+		return
+	}
+	victim, ok := findUserByName(u.room, line)
+	if !ok {
+		u.room.broadcast(Devbot, "Who's that?")
+		return
+	}
+	u.room.broadcast(Devbot, victim.Name+" is in room "+victim.room.name)
+}
+
+func whoamiCMD(_ string, u *User) {
+	u.room.broadcast("", u.Name)
+}
+
+func meCMD(rest string, u *User) {
+	// Broadcast the message to the room using the users color for the whole message and without the username
+	if rest == "" {
+		u.room.broadcast("", u.Name+" is feeling lazy and didn't type anything")
+		return
+	}
+	u.room.broadcast("", "... "+u.Name+" "+colorizeMessage(rest, u.Color))
+}
+
+func echoCMD(rest string, u *User) {
+	u.room.broadcast("", rest)
+}
+
+func cowsayCMD(rest string, u *User) {
+	u.writeln(Devbot, "Your message is: "+colorizeMessage(cowEncodeDecode(rest), u.Color))
+}
+
+func hideCMD(_ string, u *User) {
+	u.Hidden = true
+}
+
+func peopleCMD(_ string, u *User) {
+	// Make a list of all users from saved users (preferences)
+	pref_location := "talk-data/user-prefs/"
+
+	files, err := ioutil.ReadDir(pref_location)
+	if err != nil {
+		u.room.broadcast(Devbot, "Error reading user preferences directory: "+err.Error())
+		return
+	}
+
+	var users []string
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".json") {
+			users = append(users, strings.TrimSuffix(file.Name(), ".json"))
+		}
+	}
+	for _, user := range users {
+		peer, ok := findUserByName(u.room, user)
+		if ok {
+			u.room.broadcast(Devbot, fmt.Sprintf("Nickname: %s, ID: %s", peer.Name, peer.id))
+		} else {
+			u.room.broadcast(Devbot, fmt.Sprintf("Nickname: %s, ID: not found", user))
+		}
 	}
 }

@@ -398,3 +398,11 @@ func copyColor(msg string, ref string) string {
 	ret += "\033[39m\033[49m"
 	return ret
 }
+
+func colorizeMessage(msg string, color string) string {
+	style, err := getStyle(color)
+	if err != nil {
+		return colorNameWithColor("red") + " " + err.Error()
+	}
+	return style.apply(msg)
+}
