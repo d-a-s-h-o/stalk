@@ -1,10 +1,10 @@
-# Talk | Chat with other devs over SSH in your Terminal
+# Stalk | Chat with other devs over SSH in your Terminal
 
 ***
 
-Where are the devs at? They're talking over on the cool SSH Chat - "Talk"!
+Where are the devs at? They're talking via SSH - or "Stalking"!
 
-Talk is a custom SSH server that takes you to a chat instead of a shell prompt. Because there's SSH apps on all platforms (even on phones) you can connect to Talk on any device!
+Stalk is a custom SSH server that takes you to a chat instead of a shell prompt. Because there's SSH apps on all platforms (even on phones) you can connect to Talk on any device!
 
 ## Usage
 
@@ -28,22 +28,22 @@ ssh talk.dasho.dev -p 443
 
 If you add this to `~/.ssh/config`:
 ```ssh
-Host chat
+Host talk
     HostName talk.dasho.dev
 ```
 
 You'll be able to join with just:
 ```sh
-ssh chat
+ssh talk
 ```
 
-Feel free to make a [new issue](https://github.com/d-a-s-h-o/talk/issues) if something doesn't work.
+Feel free to make a [new issue](https://github.com/d-a-s-h-o/stalk/issues) if something doesn't work.
 
 ### Want to host your own instance?
 
 Quick start:
 ```shell
-git clone https://github.com/d-a-s-h-o/talk && cd talk
+git clone https://github.com/d-a-s-h-o/stalk && cd stalk
 go install # or build, if you want to keep things in the pwd
 ssh-keygen -qN '' -f talk-sshkey # new ssh host key for the server
 talk # run! the default config is used & written automatically
@@ -123,4 +123,4 @@ Talk has a plugin API you can use to integrate your own services: [documentation
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/d-a-s-h-o/talk.svg)](https://starchart.cc/d-a-s-h-o/talk)
+[![Stargazers over time](https://starchart.cc/d-a-s-h-o/stalk.svg)](https://starchart.cc/d-a-s-h-o/stalk)
