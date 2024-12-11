@@ -14,7 +14,7 @@ require (
 	github.com/jwalton/gchalk v1.3.0
 	github.com/quackduck/term v0.0.0-20230512153006-5935fcd4d5e9
 	github.com/shurcooL/tictactoe v0.0.0-20210613024444-e573ff1376a3
-	golang.org/x/crypto v0.13.0
+	golang.org/x/crypto v0.31.0
 	google.golang.org/grpc v1.58.2
 	gopkg.in/Knetic/govaluate.v3 v3.0.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -42,10 +42,10 @@ require (
 	github.com/yuin/goldmark v1.5.6 // indirect
 	github.com/yuin/goldmark-emoji v1.0.2 // indirect
 	golang.org/x/image v0.12.0 // indirect
-	golang.org/x/net v0.15.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/term v0.12.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230920204549-e6e6cdab5c13 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
